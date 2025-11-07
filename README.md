@@ -1,0 +1,36 @@
+
+### GraphQL Auth (Go)
+
+### Configuration
+The following configuration options are available;
+
+|ENV_VAR|argument|Default Value|Description|
+|-------|--------|-------------|-----------|
+|HTTP_BIND|--http-bind|:80|The adapter:port to listen for plaintext connections|
+|OPS_PORT|--ops-port|8081|Port to bind to for metrics ect.ect|
+|LOG_LEVEL|--log-level|info|Logging verbosity|
+|LOG_FORMAT|--log-format|nil|Logging format|
+|VERIFICATION_KEY_URL|--verification-key-url|nil|verification key url|
+|REQUIRED_SCOPES|--required-scopes|nil|comma separated list of scopes used for validation|
+|SUPPORTED_HTTP_METHODS|--supported-http-methods|nil|comma separated list of HTTP methods to support|
+
+### Available metrics
+The following metrics are currently available for this service
+
+|Name|Type|Vectors|Description|
+|----|----|-------|-----------|
+|graphql_query_total|Counter Vec|query_type=either query or mutation, method_name=The method that was called| count of successful request |
+|graphql_query_error_total|Counter Vec|query_type=either query or mutation, method_name=The method that was called| a counter of graphql query errors |
+|request_size|Counter| | Size of requests |
+|response_time_(bucket/count/total)|Histogram| | Request response times |
+|response_size|Counter| | Size of request responses |
+|request_total|Counter| | Count of requests received |
+
+### Building
+The easiest way of building this service is to use `make docker-image` as this container will support the necessary build tools;
+* go
+
+If you want to build locally using `make build` ensure that you meet the above requirements as well as the correct version of openssl and libssl setup and available. Openssl version mis matches will cause either the build to fail of completely unexpected behaviour. 
+
+### Running (local)
+Run the build using the following command `make local/run`. The Graphql service can then be access at [localhost:8080](http://localhost:8080)
