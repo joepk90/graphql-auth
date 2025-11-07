@@ -1,0 +1,3 @@
+**/vendor
+graphql-auth
+.env
