@@ -9,6 +9,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/mux"
 
 	"github.com/joepk90/graphql-auth/internal/auth"
@@ -62,13 +63,6 @@ func main() {
 		Value:  "http:/localhost:8080",
 	})
 
-	localAuthToken := app.String(cli.StringOpt{
-		Name:   "auth-token",
-		Desc:   "auth token used for development purposes",
-		EnvVar: "LOCAL_AUTH_TOKEN",
-		Value:  "",
-	})
-
 	app.Action = func() {
 		ctx := context.Background()
 
@@ -97,7 +91,7 @@ func main() {
 					),
 				),
 			).Methods(http.MethodGet, http.MethodPost, http.MethodOptions)
-			router.Handle("/", middleware.GQLiHTTPMiddleware(*localAuthToken))
+			router.Handle("/", playground.Handler("GraphQL Playground", "/graphql"))
 			s := &http.Server{
 				Handler: router,
 				Addr:    fmt.Sprintf(":%d", *httpBind),
