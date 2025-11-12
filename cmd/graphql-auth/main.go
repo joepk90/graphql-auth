@@ -84,10 +84,8 @@ func main() {
 			router.Handle(
 				"/graphql",
 				middleware.CORSHTTPMiddleware(
-					middleware.CORSHTTPMiddleware(
-						middleware.HTTPHandler(true)(
-							middleware.GQLHTTPMiddleware(schema),
-						),
+					middleware.HTTPHandler(true)(
+						middleware.GQLHTTPMiddleware(schema),
 					),
 				),
 			).Methods(http.MethodGet, http.MethodPost, http.MethodOptions)
