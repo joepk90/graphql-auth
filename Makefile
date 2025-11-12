@@ -4,7 +4,7 @@ base_dir := $(notdir $(patsubst %/,%,$(dir $(mkfile_path))))
 
 DOCKER_REGISTRY?=jparkkennaby
 SERVICE=graphql-auth
-DOCKER_REPOSITORY=$(DOCKER_REGISTRY)/$(SERVICE)
+DOCKER_REPOSITORY=$(DOCKER_REGISTRY)/$(SERVICE):latest
 
 BUILDENV :=
 BUILDENV += CGO_ENABLED=0
@@ -13,7 +13,7 @@ GIT_HASH := $(GITHUB_SHA)
 ifeq ($(GIT_HASH),)
   GIT_HASH := $(shell git rev-parse HEAD)
 endif
-LINKFLAGS :=-s -X main.gitHash=$(GIT_HASH)
+
 TESTFLAGS := -v -cover
 LINT_EXCLUDE=pb.go|pb.gw.go
 LINT_FLAGS :=--disable  errcheck --disable staticcheck --timeout=2m
@@ -51,8 +51,8 @@ clean:
 	rm -f $(SERVICE)
 
 # builds our binary
-$(SERVICE): clean
-	$(BUILDENV) go build -o $(SERVICE) -a -ldflags '$(LINKFLAGS)' ./cmd/$(SERVICE)
+build: clean
+	$(BUILDENV) go build -o $(SERVICE) ./cmd/$(SERVICE)
 
 dev:
 	. ./.env && go run ./cmd/graphql-auth/main.go
@@ -64,7 +64,15 @@ test:
 .PHONY: all
 all: clean $(LINTER) lint test build
 
-docker-build: $(SERVICE)
+docker-build:
+	docker build --no-cache -t $(DOCKER_REPOSITORY) .
+
+# primarily used for PROD image testing	
+docker-run:
+	docker run \
+	-e AUTH_SERVICE_URL="http://localhost:8090" \
+	-p 8080:8080 \
+	${DOCKER_REPOSITORY}
 
 mocks:
 	go get go.uber.org/mock/mockgen

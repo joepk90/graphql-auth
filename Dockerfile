@@ -1,19 +1,30 @@
-FROM golang:1-alpine AS build
+# ---- Build stage ----
+FROM golang:1.25-alpine AS build
 
-RUN apk update && apk add make git gcc musl-dev
+RUN apk add --no-cache make git gcc musl-dev
 
-ARG SERVICE
+ENV SERVICE=graphql-auth
+WORKDIR /src
 
-RUN make ${SERVICE}
+# Copy Go modules first (better for caching)
+COPY go.mod go.sum ./
+RUN go mod download
 
-RUN mv ${SERVICE} /${SERVICE}
+# Copy the rest of the source
+COPY . .
 
+# Build the binary
+RUN CGO_ENABLED=0 go build -o ${SERVICE} ./cmd/${SERVICE}
+
+# ---- Runtime stage ----
 FROM alpine:latest
 
-ARG SERVICE
+ENV SERVICE=graphql-auth
+WORKDIR /app
 
-ENV APP=${SERVICE}
+RUN apk add --no-cache ca-certificates
 
-RUN apk add --no-cache ca-certificates && mkdir /app
-COPY --from=build /${SERVICE} /app/${SERVICE}
-ENTRYPOINT /app/${APP}
+# Copy the built binary
+COPY --from=build /src/${SERVICE} /app/${SERVICE}
+
+ENTRYPOINT ["/app/graphql-auth"]
