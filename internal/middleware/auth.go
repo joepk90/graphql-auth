@@ -33,21 +33,17 @@ var (
 // HTTPHandler propagates the token from the HTTP authorization header into the context.
 //
 // `must` is used to indicate that the token must be present.
-func HTTPHandler(must bool) func(http.Handler) http.Handler {
+func HTTPHandler() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			header := r.Header.Get("authorization")
 			if header == "" {
-				if must {
-					httpHandlerPrincipalMissing.Inc()
-					writeErr(w, httpError{
-						Code:    http.StatusUnauthorized,
-						Message: "missing authorisation token",
-					})
-					return
-				}
+				httpHandlerPrincipalMissing.Inc()
+				writeErr(w, httpError{
+					Code:    http.StatusUnauthorized,
+					Message: "missing authorisation tokens",
+				})
 
-				// allow unauthenticated requests in
 				httpHandlerExtractionSkipped.Inc()
 				next.ServeHTTP(w, r)
 				return
