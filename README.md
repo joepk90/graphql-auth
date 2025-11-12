@@ -37,6 +37,6 @@ Run the build using the following command `make dev`. The Graphql service can th
 ### GraphQLi Authorization Headers
 ```
 {
-  "authorization": "Bearer XXX"
+  "Authorization": "Bearer XXX"
 }
 ```
