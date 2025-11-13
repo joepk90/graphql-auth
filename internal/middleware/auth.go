@@ -1,8 +1,10 @@
 package middleware
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 
@@ -36,6 +38,15 @@ var (
 func HTTPHandler() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+			// disable auth for introspection queries
+			bodyBytes, _ := io.ReadAll(r.Body)
+			r.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+			if isIntrospectionQuery(bodyBytes) {
+				next.ServeHTTP(w, r)
+				return
+			}
+
 			header := r.Header.Get("authorization")
 			if header == "" {
 				httpHandlerPrincipalMissing.Inc()
@@ -45,7 +56,6 @@ func HTTPHandler() func(http.Handler) http.Handler {
 				})
 
 				httpHandlerExtractionSkipped.Inc()
-				next.ServeHTTP(w, r)
 				return
 			}
 
@@ -80,4 +90,8 @@ func writeErr(w http.ResponseWriter, e httpError) {
 	if err := json.NewEncoder(w).Encode(e); err != nil {
 		fmt.Printf("failed to write error: %s\n", err)
 	}
+}
+
+func isIntrospectionQuery(body []byte) bool {
+	return bytes.Contains(body, []byte("__schema")) || bytes.Contains(body, []byte("__type"))
 }
