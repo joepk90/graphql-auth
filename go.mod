@@ -8,6 +8,7 @@ require (
 	github.com/99designs/gqlgen v0.17.83
 	github.com/gorilla/mux v1.8.0
 	github.com/graphql-go/graphql v0.8.1
+	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/jawher/mow.cli v1.2.0
 	github.com/prometheus/client_golang v1.19.1
 	github.com/sirupsen/logrus v1.9.3

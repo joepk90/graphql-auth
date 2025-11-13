@@ -85,7 +85,10 @@ func main() {
 				"/graphql",
 				middleware.CORSHTTPMiddleware(
 					middleware.HTTPHandler()(
-						middleware.GQLHTTPMiddleware(schema),
+						middleware.HTTPInstrumentedInterceptor(
+							middleware.GQLHTTPMiddleware(schema),
+							metrics,
+						),
 					),
 				),
 			).Methods(http.MethodGet, http.MethodPost, http.MethodOptions)
