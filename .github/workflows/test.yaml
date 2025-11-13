@@ -23,21 +23,20 @@ jobs:
             ${{ runner.os }}-go-generate
       - name: Install binaries
         run: make install
-  # lint not working - go version conflict
-  # lint:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
-  #     - name: Setup Go
-  #       uses: actions/setup-go@v5
-  #       with:
-  #         go-version: 1.24
-  #     - name: Lint
-  #       uses: golangci/golangci-lint-action@v6
-  #       with:
-  #         version: v1.62.0
-  #         args: --disable errcheck --disable staticcheck --disable unused --timeout 5m
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.24
+      - name: Lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.62.0
+          args: --disable errcheck --disable staticcheck --disable unused --timeout 5m
   test:
     runs-on: ubuntu-latest
     steps:
